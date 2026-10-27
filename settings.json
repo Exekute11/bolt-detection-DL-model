@@ -1,0 +1,39 @@
+{
+  "cycle": {
+    "enabled": false,
+    "duration": 10,
+    "min_present": 1,
+    "grace": 2.0
+  },
+  "detection": {
+    "conf": 0.3,
+    "iou": 0.5,
+    "imgsz": null,
+    "count_all_boxes": true,
+    "collect_samples": false,
+    "count_smooth": 3,
+    "min_box_area_pct": 0.0,
+    "max_box_area_pct": 100.0,
+    "roi": null,
+    "device": null
+  },
+  "camera": {
+    "index": 1,
+    "backend": "auto",
+    "display_width": 1920,
+    "jpeg_quality": 85,
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "auto_exposure": true,
+    "exposure": -6,
+    "autofocus": true,
+    "focus": 0,
+    "sw_brightness": 0,
+    "sw_contrast": 1.0,
+    "sw_gamma": 1.0,
+    "sw_enhance": false
+  },
+  "parts": {},
+  "active_part": null
+}

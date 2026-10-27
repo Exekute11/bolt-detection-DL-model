@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inspection History | Godrej Fastener Detection</title>
+<link rel="icon" href="{{ url_for('static', filename='assets/favicon.ico') }}">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="bg-orbs"><i></i><i></i></div>
+<header class="nav">
+  <div class="brand">
+    <img src="{{ url_for('static', filename='assets/Godrej_Logo1.jpg') }}" alt="Godrej" class="logo">
+    <span class="divider"></span>
+    <div><b>Inspection History</b><small>Alerts, references &amp; snapshots</small></div>
+  </div>
+  <div class="nav-right"><a class="pill ghost" href="/">&larr; Dashboard</a></div>
+</header>
+<main class="wrap">
+  <section class="kpis hist-kpis">
+    <article class="kpi"><span>Total Records</span><h2 id="kTotal">0</h2><em>Shown below</em></article>
+    <article class="kpi"><span>Alerts</span><h2 id="kAlert">0</h2><em>Missing-fastener events</em></article>
+    <article class="kpi"><span>References</span><h2 id="kRef">0</h2><em>Captured</em></article>
+    <article class="kpi"><span>Last Alert</span><h2 id="kLast" style="font-size:20px">--</h2><em>Most recent</em></article>
+  </section>
+  <div class="panel">
+    <div class="p-head">
+      <h4>Records</h4>
+      <div class="hist-tools">
+        <div class="seg" id="fSeg"><button data-t="" class="on">All</button><button data-t="alert">Alerts</button><button data-t="reference">References</button><button data-t="pass">Pass</button><button data-t="fail">Fail</button><button data-t="ok">OK</button></div>
+        <a class="btn primary" id="btnCsv" href="/history/export.csv"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>Export CSV</a>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Time</th><th>Type</th><th>Part</th><th>Source</th><th>Current</th><th>Ref</th><th>Missing</th><th>Details</th><th>Snapshot</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <footer>© Godrej &amp; Boyce · Developed By : Devashish Niphade · Powered by YOLO</footer>
+</main>
+<div class="lightbox" id="lb"><img id="lbImg" alt="Snapshot"></div>
+<script src="{{ url_for('static', filename='js/anim.js') }}"></script>
+<script>
+const $=s=>document.querySelector(s);let type='',lastKey='',animate=true;
+function countTo(el,v){const from=parseInt(el.dataset.v||'0');el.dataset.v=v;if(from===v){el.textContent=v;return}
+  const t0=performance.now();(function f(t){const p=Math.min((t-t0)/600,1),e=1-Math.pow(1-p,3);el.textContent=Math.round(from+(v-from)*e);if(p<1)requestAnimationFrame(f)})(t0)}
+async function load(){
+  const r=await (await fetch('/api/history?limit=500&type='+type,{cache:'no-store'})).json();
+  const key=type+JSON.stringify(r.map(x=>x.id));
+  if(key===lastKey)return;           /* nothing changed -> no re-render, no flicker */
+  lastKey=key;
+  countTo($('#kTotal'),r.length);
+  countTo($('#kAlert'),r.filter(x=>x.type==='alert').length);
+  countTo($('#kRef'),r.filter(x=>x.type==='reference').length);
+  const la=r.find(x=>x.type==='alert');$('#kLast').textContent=la?la.ts.slice(5,16):'--';
+  const tb=$('#rows');
+  tb.className=animate?'anim':'';animate=false;
+  tb.innerHTML=r.length?r.map((x,n)=>`<tr class="t-${x.type}" style="--i:${Math.min(n,14)}"><td>${x.ts}</td><td><span class="tag ${x.type}">${x.type.toUpperCase()}</span></td><td>${x.part||'—'}</td><td>${x.source||''}</td><td>${x.current_count}</td><td>${x.reference_count}</td><td>${x.missing_count}</td><td>${x.message||''}</td><td>${x.snapshot?`<img class="thumb" src="/snapshots/${x.snapshot}" data-f="${x.snapshot}" alt="snap">`:'—'}</td></tr>`).join(''):'<tr><td colspan="9" class="empty">No records yet. Capture a reference and let the system run.</td></tr>';
+  document.querySelectorAll('.thumb').forEach(i=>i.onclick=()=>{$('#lbImg').src='/snapshots/'+i.dataset.f;$('#lb').classList.add('show')});
+}
+document.querySelectorAll('#fSeg button').forEach(b=>b.onclick=()=>{
+  type=b.dataset.t;animate=true;lastKey='';
+  document.querySelectorAll('#fSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  $('#btnCsv').href='/history/export.csv?type='+type;
+  const w=document.querySelector('.tbl-wrap');w.classList.add('fading');
+  setTimeout(()=>load().then(()=>w.classList.remove('fading')),180);
+});
+$('#lb').onclick=()=>$('#lb').classList.remove('show');
+load();setInterval(load,4000);
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Godrej Fastener Detection</title>
+<link rel="icon"
+      href="{{ url_for('static', filename='assets/favicon.ico') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="bg-orbs"><i></i><i></i></div>
+
+<header class="nav">
+  <div class="brand">
+    <img src="{{ url_for('static', filename='assets/Godrej_Logo1.jpg') }}" alt="Godrej" class="logo">
+    <span class="divider"></span>
+    <div><b>Fastener Detection</b><small>AI Monitoring</small></div>
+  </div>
+  <div class="nav-right">
+    <span class="pill" id="livePill"><i class="dot"></i><span id="liveText">LIVE</span></span>
+    <span class="pill ghost"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg><span id="fps">0</span> FPS</span>
+    <a class="pill ghost" href="/history">History</a>
+    <span class="pill ghost" id="clock">--:--:--</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="banner ok" id="banner">
+    <div class="b-icon" id="bIcon"><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg></div>
+    <div><h3 id="bTitle">All Systems Nominal</h3><p id="bText">Every tracked fastener is accounted for.</p></div>
+    <span class="b-tag" id="bTag">OK</span>
+  </section>
+
+  <section class="kpis">
+    <article class="kpi"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div><span>Current Fasteners</span><h2 data-k="current_bolts">0</h2><em>Detected in frame</em></article>
+    <article class="kpi"><div class="ico"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div><span>Reference Count</span><h2 data-k="reference_bolts">0</h2><em id="refNote">Auto-following</em></article>
+    <article class="kpi" id="missCard"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 2 21h20zM12 10v5M12 18v.5"/></svg></div><span>Missing Fasteners</span><h2 data-k="missing_bolts">0</h2><em>vs reference</em></article>
+    <article class="kpi"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></div><span>System Status</span><h2 id="statusKpi" class="g">OK</h2><em id="srcNote">Source: video</em></article>
+  </section>
+
+  <section class="grid">
+    <div class="panel video">
+      <div class="p-head">
+        <h4>Live Detection Feed</h4>
+        <div class="seg" id="srcSeg"><button data-s="video" class="on">Video File</button><button data-s="webcam">Webcam</button></div>
+      </div>
+      <div class="stage" id="stage">
+        <img id="feed" src="/video_feed" alt="Live feed">
+        <div class="hud tl"><i class="dot"></i> REC</div>
+        <div class="hud tr">YOLO · TRACKING</div>
+        <div class="scan"></div>
+        <div class="paused" id="pausedOv"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>Monitoring Paused</div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="btnStart"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Start</button>
+        <button class="btn" id="btnStop"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>Stop</button>
+        <button class="btn accent" id="btnRef"><svg viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4M9 12h6"/></svg>Capture Reference</button>
+        <button class="btn ghost" id="btnClr">Clear Reference</button>
+        <button class="btn ghost" id="btnZone"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2" stroke-dasharray="3 3"/></svg>Set Zone</button>
+        <button class="btn ghost" id="btnZoneClr">Clear Zone</button>
+        <button class="btn ghost" id="btnFs"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Fullscreen</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="panel cyc" id="cycPanel">
+        <div class="p-head"><h4>Inspection Cycle</h4>
+          <div class="seg" id="cycSeg"><button data-m="0" class="on">Live</button><button data-m="1">Timed</button></div>
+        </div>
+        <div class="cyc-body">
+          <div class="ring" id="ring">
+            <svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="bar" id="ringBar" cx="40" cy="40" r="34"/></svg>
+            <div class="ring-t"><b id="ringBig">--</b><small id="ringSmall"></small></div>
+          </div>
+          <div class="cyc-info"><b id="cycState">Live mode</b><small id="cycHint">Counting continuously. Switch to Timed to inspect one part for a fixed time.</small></div>
+        </div>
+        <div class="cyc-set">
+          <label>Inspection time (s)<input type="number" id="cycDur" min="3" max="300" value="10"></label>
+          <label>Part<select id="partSel"><option value="">— none —</option></select></label>
+        </div>
+        <div class="cyc-btns">
+          <button class="btn ghost" id="btnSavePart">Save as part</button>
+          <button class="btn ghost" id="btnDelPart">Delete part</button>
+          <label class="snd"><input type="checkbox" id="sndOn" checked> Sound</label>
+        </div>
+        <div class="cyc-stats"><span>Inspected <b id="stTot">0</b></span><span>Pass <b id="stPass">0</b></span><span>Fail <b id="stFail">0</b></span><span>Yield <b id="stYield">--</b></span></div>
+      </div>
+      <details class="panel camp" id="camPanel">
+        <summary><h4>Camera &amp; Image</h4><span class="exp" id="expBadge">--</span></summary>
+        <div class="cam-meter"><div class="mbar"><i id="mFill"></i><u></u></div><small id="mText">Brightness --</small></div>
+        <div class="cam-grid">
+          <label>Resolution<select id="camRes"><option value="640x480">640 × 480</option><option value="1280x720" selected>HD 1280 × 720</option><option value="1920x1080">Full HD 1920 × 1080</option></select></label>
+          <label>Frame rate<select id="camFps"><option value="30" selected>30 FPS</option><option value="60">60 FPS</option><option value="15">15 FPS</option></select></label>
+        </div>
+        <div class="cam-grid">
+          <label>Camera #<select id="camIdx"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+          <label>Driver<select id="camDrv"><option value="auto">Auto</option><option value="dshow">DirectShow</option><option value="msmf">Media Foundation</option></select></label>
+        </div>
+        <small class="cam-now" id="camNow"></small>
+        <small class="cam-warn" id="camWarn"></small>
+        <button class="btn primary wide" id="btnSharp">Sharp mode - fix blur &amp; low FPS</button>
+        <button class="btn primary wide" id="btnAutoFix">Auto-fix exposure</button>
+        <div class="sl"><span>Highlight recovery <b id="vGamma">1.0</b></span><input type="range" id="swGamma" min="0.4" max="3" step="0.05" value="1"></div>
+        <div class="sl"><span>Brightness <b id="vBri">0</b></span><input type="range" id="swBri" min="-100" max="100" step="1" value="0"></div>
+        <div class="sl"><span>Contrast <b id="vCon">1.0</b></span><input type="range" id="swCon" min="0.5" max="2" step="0.05" value="1"></div>
+        <label class="chk"><input type="checkbox" id="swEnh"> Enhance bolt edges (local contrast)</label>
+        <div class="hw" id="hwBox">
+          <label class="chk"><input type="checkbox" id="hwAuto" checked> Camera auto-exposure</label>
+          <div class="sl" id="expRow"><span>Exposure (camera) <b id="vExp">-6</b></span><input type="range" id="hwExp" min="-13" max="0" step="1" value="-6"></div>
+          <label class="chk"><input type="checkbox" id="hwAf" checked> Autofocus</label>
+          <div class="sl" id="focRow"><span>Focus <b id="vFoc">0</b></span><input type="range" id="hwFoc" min="0" max="255" step="5" value="0"></div>
+          <small class="hint">Camera exposure/focus work only on webcams that support them. The sliders above always work.</small>
+        </div>
+        <button class="btn ghost wide" id="btnCamReset">Reset camera</button>
+      </details>
+      <div class="panel">
+        <div class="p-head"><h4>Active Fasteners</h4><span class="count" id="actCount">0</span></div>
+        <div class="chips" id="chips"><p class="empty">Waiting for detections…</p></div>
+      </div>
+      <div class="panel grow">
+        <div class="p-head"><h4>Event Timeline</h4></div>
+        <ul class="timeline" id="timeline"><li class="empty">No events yet</li></ul>
+      </div>
+    </aside>
+  </section>
+
+  <footer>© Godrej &amp; Boyce · Developed By : Devashish Niphade · Powered by YOLO</footer>
+</main>
+<div class="toast" id="toast"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/anim.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cycle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/stage.js') }}"></script>
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+</body>
+</html>

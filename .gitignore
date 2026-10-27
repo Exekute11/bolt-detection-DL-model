@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment Variables
+.env
+
+# Logs
+*.log
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Build Files
+build/
+dist/
+*.egg-info/
+
+# Cache
+.cache/
+.pytest_cache/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# ML Training Cache
+wandb/
+labels.cache
+
+# Torch Cache
+*.pth
+
+# Optional Snapshots
+snapshots/
